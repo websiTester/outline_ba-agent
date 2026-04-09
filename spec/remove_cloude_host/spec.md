@@ -1,0 +1,1 @@
+Mô tả: Hiện tại project đang sử dụng thuộc tính isCloudHosted để xác định xem có phải đang chạy trên cloud hay không. Và từ đó cho phép tạo các workspace với các subdomain khác nhau

@@ -353,10 +353,18 @@ export class Environment {
    * Should the installation send anonymized statistics to the maintainers.
    * Defaults to true.
    */
-  @IsBoolean()
   public TELEMETRY = this.toBoolean(
     environment.ENABLE_UPDATES ?? environment.TELEMETRY ?? "true"
   );
+
+  /**
+   * Returns true if the current installation is running in a cloud hosted
+   * environment.
+   */
+  @Public
+  @IsOptional()
+  @IsBoolean()
+  public IS_CLOUD_HOSTED = this.toOptionalBoolean(environment.IS_CLOUD_HOSTED);
 
   // Third-party services
 
@@ -818,11 +826,14 @@ export class Environment {
    * getoutline.com
    */
   public get isCloudHosted() {
-    return [
-      "https://app.getoutline.com",
-      "https://app.outline.dev",
-      "https://app.outline.dev:3000",
-    ].includes(this.URL);
+    return (
+      this.IS_CLOUD_HOSTED ??
+      [
+        "https://app.getoutline.com",
+        "https://app.outline.dev",
+        "https://app.outline.dev:3000",
+      ].includes(this.URL)
+    );
   }
 
   /**

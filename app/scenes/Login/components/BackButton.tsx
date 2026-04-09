@@ -33,7 +33,7 @@ export function BackButton({ onBack, config }: Props) {
   }
 
   return (
-    <Link href={isSubdomain ? env.URL : "https://www.getoutline.com"}>
+    <Link href={env.URL}>
       <BackIcon /> {Desktop.isElectron() ? t("Back") : t("Back to home")}
     </Link>
   );

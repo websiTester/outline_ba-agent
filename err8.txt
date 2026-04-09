@@ -1,0 +1,129 @@
+﻿[38;5;142m[dotenvx@1.51.2] injecting env (8) from .env[39m
+
+[4mSequelize CLI [Node: 22.19.0, CLI: 6.6.3, ORM: 6.37.7][24m
+
+Loaded configuration file "server\config\database.js".
+Using environment "development".
+== 20230815063834-migrate-emoji-in-document-title: migrating =======
+[38;5;142m[dotenvx@1.51.2] injecting env (0) from .env[39m
+Backfill document emoji from titleΓÇª page 0
+node.exe : E:\FIS\outline-ba\o
+utline\node_modules\sequelize\
+lib\dialects\postgres\connecti
+on-manager.js:149
+At C:\Program 
+Files\nodejs\yarn.ps1:16 
+char:5
++     & "$basedir/node$exe"  "
+$basedir/node_modules/corepack
+/dist/yarn. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (E:\FIS\ou  
+  tline-...-manager.js:149:   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+            reject(new sequeli
+zeErrors.ConnectionError(err))
+;
+                   ^
+
+ConnectionError 
+[SequelizeConnectionError]: 
+The server does not support 
+SSL connections
+    at 
+Client._connectionCallback (E:
+\FIS\outline-ba\outline\node_m
+odules\sequelize\lib\dialects\
+postgres\connection-manager.js
+:149:20)
+    at Client._handleErrorWhil
+eConnecting (E:\FIS\outline-ba
+\outline\node_modules\pg\lib\c
+lient.js:336:19)
+    at 
+Client._handleErrorEvent (E:\F
+IS\outline-ba\outline\node_mod
+ules\pg\lib\client.js:346:19)
+    at Connection.emit 
+(node:events:519:28)
+    at Connection.emit 
+(node:domain:489:12)
+    at Socket.<anonymous> (E:\
+FIS\outline-ba\outline\node_mo
+dules\pg\lib\connection.js:76:
+23)
+    at Object.onceWrapper 
+(node:events:634:26)
+    at Socket.emit 
+(node:events:519:28)
+    at Socket.emit 
+(node:domain:489:12)
+    at addChunk (node:internal
+/streams/readable:561:12) {
+  parent: Error: The server 
+does not support SSL 
+connections
+      at Socket.<anonymous> (E
+:\FIS\outline-ba\outline\node_
+modules\pg\lib\connection.js:7
+6:37)
+      at Object.onceWrapper 
+(node:events:634:26)
+      at Socket.emit 
+(node:events:519:28)
+      at Socket.emit 
+(node:domain:489:12)
+      at addChunk (node:intern
+al/streams/readable:561:12)
+      at 
+readableAddChunkPushByteMode (
+node:internal/streams/readable
+:512:3)
+      at Readable.push (node:i
+nternal/streams/readable:392:5
+)
+      at TCP.onStreamRead (nod
+e:internal/stream_base_commons
+:189:23),
+  original: Error: The server 
+does not support SSL 
+connections
+      at Socket.<anonymous> (E
+:\FIS\outline-ba\outline\node_
+modules\pg\lib\connection.js:7
+6:37)
+      at Object.onceWrapper 
+(node:events:634:26)
+      at Socket.emit 
+(node:events:519:28)
+      at Socket.emit 
+(node:domain:489:12)
+      at addChunk (node:intern
+al/streams/readable:561:12)
+      at 
+readableAddChunkPushByteMode (
+node:internal/streams/readable
+:512:3)
+      at Readable.push (node:i
+nternal/streams/readable:392:5
+)
+      at TCP.onStreamRead (nod
+e:internal/stream_base_commons
+:189:23)
+}
+
+Node.js v22.19.0
+
+[31mERROR:[39m Command 
+failed: node E:\FIS\outline-ba
+\outline\build\server\scripts\
+20230815063834-migrate-emoji-i
+n-document-title.js
+

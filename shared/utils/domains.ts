@@ -76,17 +76,24 @@ export function parseDomain(url: string): Domain {
 }
 
 export function getCookieDomain(domain: string, isCloudHosted: boolean) {
+  let cookieDomain = domain;
+
   // always use the base URL for cookies when in hosted mode
   // and the domain is not custom
   if (isCloudHosted) {
     const parsed = parseDomain(domain);
 
     if (!parsed.custom) {
-      return getBaseDomain();
+      cookieDomain = getBaseDomain();
     }
   }
 
-  return domain;
+  // Browsers reject cookies that explicitly specify `Domain=localhost`.
+  if (cookieDomain === "localhost") {
+    return undefined;
+  }
+
+  return cookieDomain;
 }
 
 export const RESERVED_SUBDOMAINS = [

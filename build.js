@@ -3,6 +3,7 @@
 /* oxlint-disable no-undef */
 const { exec } = require("child_process");
 const { readdirSync, existsSync } = require("fs");
+const fse = require("fs-extra");
 
 const getDirectories = (source) =>
   readdirSync(source, { withFileTypes: true })
@@ -31,8 +32,8 @@ async function build() {
   console.log("Clean previous build…");
 
   await Promise.all([
-    execAsync("rm -rf ./build/server"),
-    execAsync("rm -rf ./build/plugins"),
+    fse.remove("./build/server"),
+    fse.remove("./build/plugins"),
   ]);
 
   const d = getDirectories("./plugins");
@@ -69,21 +70,27 @@ async function build() {
   // Copy static files
   console.log("Copying static files…");
   await Promise.all([
-    execAsync(
-      "cp ./server/collaboration/Procfile ./build/server/collaboration/Procfile"
+    fse.copy(
+      "./server/collaboration/Procfile",
+      "./build/server/collaboration/Procfile"
     ),
-    execAsync(
-      "cp ./server/static/error.dev.html ./build/server/error.dev.html"
+    fse.copy(
+      "./server/static/error.dev.html",
+      "./build/server/error.dev.html"
     ),
-    execAsync(
-      "cp ./server/static/error.prod.html ./build/server/error.prod.html"
+    fse.copy(
+      "./server/static/error.prod.html",
+      "./build/server/error.prod.html"
     ),
-    execAsync("cp package.json ./build"),
-    ...d.map(async (plugin) =>
-      execAsync(
-        `mkdir -p ./build/plugins/${plugin} && cp ./plugins/${plugin}/plugin.json ./build/plugins/${plugin}/plugin.json 2>/dev/null || :`
-      )
-    ),
+    fse.copy("./package.json", "./build/package.json"),
+    ...d.map(async (plugin) => {
+      const src = `./plugins/${plugin}/plugin.json`;
+      const dest = `./build/plugins/${plugin}/plugin.json`;
+      if (existsSync(src)) {
+        await fse.ensureDir(`./build/plugins/${plugin}`);
+        await fse.copy(src, dest);
+      }
+    }),
   ]);
 
   console.log("Done!");
