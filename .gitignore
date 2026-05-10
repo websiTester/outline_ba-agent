@@ -6,6 +6,7 @@ node_modules/*
 .env.production
 .env.development
 .log
+.venv
 .vscode/*
 npm-debug.log
 stats.json
@@ -15,6 +16,8 @@ data/*
 *.pem
 *.key
 *.cert
+__pycache__
+.claude
 
 # Yarn Berry
 .yarn/*

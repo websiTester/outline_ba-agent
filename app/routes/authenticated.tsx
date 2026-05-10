@@ -35,6 +35,7 @@ const Search = lazy(() => import("~/scenes/Search"));
 const Trash = lazy(() => import("~/scenes/Trash"));
 const Debug = lazy(() => import("~/scenes/Developer/Debug"));
 const Changesets = lazy(() => import("~/scenes/Developer/Changesets"));
+const LightRagGraph = lazy(() => import("~/scenes/LightRagGraph"));
 
 const RedirectDocument = ({
   match,
@@ -114,6 +115,7 @@ function AuthenticatedRoutes() {
               component={Document}
             />
             <Route path={`/doc/${documentSlug}`} component={Document} />
+            <Route exact path="/graph" component={LightRagGraph} />
             <Route exact path={`${searchPath()}/:query?`} component={Search} />
             {env.isDevelopment && (
               <Route exact path={debugPath()} component={Debug} />

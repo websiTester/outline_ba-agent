@@ -7,6 +7,7 @@ import type { ServerOptions } from "vite";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import environment from "./server/utils/environment";
+import tailwindcss from "@tailwindcss/vite";
 
 let httpsConfig: ServerOptions["https"] | undefined;
 let host: string | undefined;
@@ -39,12 +40,13 @@ export default () =>
       fs:
         environment.NODE_ENV === "development"
           ? {
-              // Allow serving files from one level up to the project root
-              allow: [".."],
-            }
+            // Allow serving files from one level up to the project root
+            allow: [".."],
+          }
           : { strict: true },
     },
     plugins: [
+      tailwindcss(),
       react(),
       // https://vite-pwa-org.netlify.app/
       VitePWA({

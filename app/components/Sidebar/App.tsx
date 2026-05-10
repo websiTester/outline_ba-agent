@@ -108,6 +108,12 @@ function AppSidebar() {
                 label={t("Search")}
                 exact={false}
               />
+              <SidebarLink
+                to="/graph"
+                icon={<SearchIcon />}
+                label="Knowledge Graph"
+                exact={false}
+              />
               {can.createDocument && <DraftsLink />}
             </Section>
           </Overflow>

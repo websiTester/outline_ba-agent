@@ -29,6 +29,8 @@ import history from "./utils/history";
 import { initSentry } from "./utils/sentry";
 import { ActionContextProvider } from "./hooks/useActionContext";
 
+import './styles/tailwind.css'
+
 // Load plugins as soon as possible
 void PluginManager.loadPlugins();
 

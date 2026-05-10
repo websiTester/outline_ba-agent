@@ -17,5 +17,20 @@ services:
     volumes:
       - postgres_data_ba_agent:/var/lib/postgresql/data
 
+  neo4j:
+    image: neo4j:5-community
+    container_name: outline-ba-neo4j
+    ports:
+      - "127.0.0.1:7473:7474" # HTTP
+      - "127.0.0.1:7686:7687" # Bolt
+    environment:
+      NEO4J_AUTH: neo4j/neo4jpass
+      NEO4J_dbms_memory_heap_max__size: 2G
+      NEO4J_dbms_memory_pagecache_size: 1G
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*"
+      NEO4JLABS_PLUGINS: '["apoc"]'
+
+
 volumes:
   postgres_data_ba_agent:
