@@ -22,7 +22,7 @@ function ToolListModal({ onClose: _onClose }: ToolListModalProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchTools = useCallback(() => {
-    if (!workspaceId) return;
+    if (!workspaceId) { return; }
     setLoading(true);
     listAgentTools(workspaceId)
       .then(setTools)
@@ -35,7 +35,7 @@ function ToolListModal({ onClose: _onClose }: ToolListModalProps) {
   }, [fetchTools]);
 
   const handleAdd = () => {
-    setActiveSectionId(crypto.randomUUID());
+    setActiveSectionId(`new-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`);
     setActiveLabel(undefined);
     setToolModalOpen(true);
   };
@@ -47,7 +47,7 @@ function ToolListModal({ onClose: _onClose }: ToolListModalProps) {
   };
 
   const handleDelete = async (tool: AgentTool) => {
-    if (!window.confirm(`Delete tool "${tool.toolName}"?`)) return;
+    if (!window.confirm(`Delete tool "${tool.toolName}"?`)) { return; }
     setDeletingId(tool.id);
     try {
       await deleteAgentTool(tool.id);

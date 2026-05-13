@@ -51,7 +51,7 @@ import urls from "./urls";
 import userMemberships from "./userMemberships";
 import users from "./users";
 import views from "./views";
-import lightrag from "./lightrag";
+
 
 const api = new Koa<AppState, AppContext>();
 const router = new Router();
@@ -119,7 +119,7 @@ router.use("/", userMemberships.routes());
 router.use("/", reactions.routes());
 router.use("/", relationships.routes());
 router.use("/", imports.routes());
-router.use("/", lightrag.routes());
+
 
 if (!env.isCloudHosted) {
   router.use("/", installation.routes());

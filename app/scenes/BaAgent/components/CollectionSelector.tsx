@@ -17,7 +17,7 @@ export default function CollectionSelector({ value, onChange }: Props) {
     listCollections()
       .then((data) => {
         setCollections(data);
-        if (data.length > 0 && !value) onChange(data[0].id);
+        if (data.length > 0 && !value) { onChange(data[0].id); }
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));

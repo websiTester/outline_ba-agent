@@ -27,14 +27,14 @@ interface PromptIconButtonProps {
 
 function getParentState(leafIds: string[], selected: string[]): CheckState {
   const count = leafIds.filter((id) => selected.includes(id)).length;
-  if (count === 0) return "unchecked";
-  if (count === leafIds.length) return "checked";
+  if (count === 0) { return "unchecked"; }
+  if (count === leafIds.length) { return "checked"; }
   return "indeterminate";
 }
 
 function getGlobalState(selected: string[]): CheckState {
-  if (selected.length === 0) return "unchecked";
-  if (selected.length === ALL_LEAF_IDS.length) return "checked";
+  if (selected.length === 0) { return "unchecked"; }
+  if (selected.length === ALL_LEAF_IDS.length) { return "checked"; }
   return "indeterminate";
 }
 

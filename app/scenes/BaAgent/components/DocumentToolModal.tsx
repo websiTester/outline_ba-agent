@@ -35,7 +35,7 @@ export default function DocumentToolModal({ isOpen, onClose, toolName, title, do
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) { return; }
     setAgentTool(null);
     setFullPrompt("");
     setUserContent("");
@@ -53,7 +53,7 @@ export default function DocumentToolModal({ isOpen, onClose, toolName, title, do
   }, [isOpen, toolName]);
 
   const handleSend = async () => {
-    if (!agentTool) return;
+    if (!agentTool) { return; }
     const content = ProsemirrorHelper.toMarkdown(document) ?? "";
 
     // Q4: empty → use defaultPrompt as-is; else reconstruct full prompt

@@ -25,7 +25,7 @@ function FileUploadSection({ file, onChange }: Props) {
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
-    if (!selected) return;
+    if (!selected) { return; }
     const err = validate(selected);
     if (err) {
       setError(err);
@@ -40,7 +40,7 @@ function FileUploadSection({ file, onChange }: Props) {
   function handleRemove() {
     setError(null);
     onChange(null);
-    if (inputRef.current) inputRef.current.value = "";
+    if (inputRef.current) { inputRef.current.value = ""; }
   }
 
   return (

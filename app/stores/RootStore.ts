@@ -35,7 +35,7 @@ import UserMembershipsStore from "./UserMembershipsStore";
 import UsersStore from "./UsersStore";
 import ViewsStore from "./ViewsStore";
 import WebhookSubscriptionsStore from "./WebhookSubscriptionStore";
-import LightRagStore from "./LightRagStore";
+
 import type Store from "./base/Store";
 
 export default class RootStore {
@@ -73,7 +73,7 @@ export default class RootStore {
   fileOperations: FileOperationsStore;
   webhookSubscriptions: WebhookSubscriptionsStore;
   userMemberships: UserMembershipsStore;
-  lightRagSources: LightRagStore;
+
 
   constructor() {
     // Models
@@ -107,7 +107,7 @@ export default class RootStore {
     this.registerStore(FileOperationsStore);
     this.registerStore(WebhookSubscriptionsStore);
     this.registerStore(UserMembershipsStore);
-    this.registerStore(LightRagStore, "lightRagSources");
+
 
     // Non-models
     this.registerStore(DocumentPresenceStore, "presence");

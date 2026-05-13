@@ -42,7 +42,7 @@ export function parseRequirementsTable(markdown: string): ParseResult {
   // Find header row index — must contain all expected columns
   const requiredColumns = ["ID", "Type", "Name", "Description"];
   const headerIndex = lines.findIndex((line) => {
-    if (!line.startsWith("|")) return false;
+    if (!line.startsWith("|")) { return false; }
     const cells = splitTableRow(line);
     return requiredColumns.every((col) =>
       cells.some((c) => c.toLowerCase() === col.toLowerCase())
@@ -86,11 +86,11 @@ export function parseRequirementsTable(markdown: string): ParseResult {
 
   for (let i = separatorIndex + 1; i < lines.length; i++) {
     const line = lines[i];
-    if (!line || !line.startsWith("|")) break;
+    if (!line || !line.startsWith("|")) { break; }
 
     const cells = splitTableRow(line);
     const type = cells[typeIdx]?.toUpperCase();
-    if (type !== "FR" && type !== "NFR") continue;
+    if (type !== "FR" && type !== "NFR") { continue; }
 
     const row: RequirementRow = {
       id: cells[idIdx] ?? "",

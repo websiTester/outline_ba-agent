@@ -35,7 +35,7 @@ function BaAgent() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const refreshAgentTools = () => {
-    if (!workspaceId) return;
+    if (!workspaceId) { return; }
     setLoadingTools(true);
     setToolsError(false);
     listAgentTools(workspaceId)
@@ -67,7 +67,7 @@ function BaAgent() {
   };
 
   const handleGenerateSRS = async () => {
-    if (!file || !workspaceId || !collectionId) return;
+    if (!file || !workspaceId || !collectionId) { return; }
 
     const orderedIds = ALL_LEAF_IDS.filter((id) => selectedSections.includes(id));
     const prompt = orderedIds

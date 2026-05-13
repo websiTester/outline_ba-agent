@@ -9,7 +9,7 @@ export async function getAgentToolByToolName(toolName: string): Promise<AgentToo
   const res = await fetch(
     `${BASE_URL}/tools_management/agent-tools/by-tool-name?toolName=${encodeURIComponent(toolName)}`
   );
-  if (!res.ok) throw new Error("Failed to fetch agent tool");
+  if (!res.ok) { throw new Error("Failed to fetch agent tool"); }
   return res.json();
 }
 
@@ -25,7 +25,7 @@ export async function runDocumentTool(payload: RunToolPayload): Promise<{ job_id
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Failed to run tool");
+  if (!res.ok) { throw new Error("Failed to run tool"); }
   return res.json();
 }
 
@@ -33,7 +33,7 @@ export async function listAgentTools(workspaceId: string): Promise<AgentTool[]> 
   const res = await fetch(
     `${BASE_URL}/tools_management/agent-tools/list?workspaceId=${encodeURIComponent(workspaceId)}`
   );
-  if (!res.ok) throw new Error("Failed to fetch agent tools");
+  if (!res.ok) { throw new Error("Failed to fetch agent tools"); }
   return res.json();
 }
 
@@ -44,7 +44,7 @@ export async function getAgentTool(
   const res = await fetch(
     `${BASE_URL}/tools_management/agent-tools?workspaceId=${encodeURIComponent(workspaceId)}&sectionId=${encodeURIComponent(sectionId)}`
   );
-  if (!res.ok) throw new Error("Failed to fetch agent tool");
+  if (!res.ok) { throw new Error("Failed to fetch agent tool"); }
   return res.json();
 }
 
@@ -53,7 +53,7 @@ export async function deleteAgentTool(toolId: string): Promise<void> {
     `${BASE_URL}/tools_management/agent-tools/${encodeURIComponent(toolId)}`,
     { method: "DELETE" }
   );
-  if (!res.ok) throw new Error("Failed to delete agent tool");
+  if (!res.ok) { throw new Error("Failed to delete agent tool"); }
 }
 
 export async function upsertAgentTool(
@@ -64,7 +64,7 @@ export async function upsertAgentTool(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to save agent tool");
+  if (!res.ok) { throw new Error("Failed to save agent tool"); }
   return res.json();
 }
 
@@ -83,7 +83,7 @@ export async function generateSRS(
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to generate SRS");
+  if (!res.ok) { throw new Error("Failed to generate SRS"); }
   return res.json();
 }
 
@@ -125,7 +125,7 @@ export async function listGeminiKeys(workspaceId: string): Promise<GeminiKey[]> 
   const res = await fetch(
     `${BASE_URL}/gemini-keys?workspaceId=${encodeURIComponent(workspaceId)}`
   );
-  if (!res.ok) throw new Error("Failed to fetch Gemini API keys");
+  if (!res.ok) { throw new Error("Failed to fetch Gemini API keys"); }
   return res.json();
 }
 
@@ -135,7 +135,7 @@ export async function addGeminiKey(workspaceId: string, keyValue: string): Promi
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ workspaceId, keyValue }),
   });
-  if (!res.ok) throw new Error("Failed to add Gemini API key");
+  if (!res.ok) { throw new Error("Failed to add Gemini API key"); }
   return res.json();
 }
 
@@ -143,7 +143,7 @@ export async function deleteGeminiKey(id: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/gemini-keys/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
-  if (!res.ok) throw new Error("Failed to delete Gemini API key");
+  if (!res.ok) { throw new Error("Failed to delete Gemini API key"); }
 }
 
 export async function activateGeminiKey(id: string): Promise<GeminiKey> {
@@ -151,7 +151,7 @@ export async function activateGeminiKey(id: string): Promise<GeminiKey> {
     `${BASE_URL}/gemini-keys/${encodeURIComponent(id)}/activate`,
     { method: "PUT" }
   );
-  if (!res.ok) throw new Error("Failed to activate Gemini API key");
+  if (!res.ok) { throw new Error("Failed to activate Gemini API key"); }
   return res.json();
 }
 

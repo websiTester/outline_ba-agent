@@ -58,10 +58,10 @@ export const ALL_LEAF_IDS = getLeafIds(SRS_SECTIONS);
 
 export function getSectionById(id: string): SrsSection | undefined {
   for (const section of SRS_SECTIONS) {
-    if (section.id === id) return section;
+    if (section.id === id) { return section; }
     if (section.children) {
       const found = section.children.find((c) => c.id === id);
-      if (found) return found;
+      if (found) { return found; }
     }
   }
   return undefined;

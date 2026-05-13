@@ -23,7 +23,7 @@ function GeminiKeyModal() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const fetchKeys = useCallback(() => {
-    if (!workspaceId) return;
+    if (!workspaceId) { return; }
     setLoading(true);
     listGeminiKeys(workspaceId)
       .then(setKeys)
@@ -37,7 +37,7 @@ function GeminiKeyModal() {
 
   const handleAdd = async () => {
     const trimmed = newKey.trim();
-    if (!trimmed) return;
+    if (!trimmed) { return; }
     setAdding(true);
     try {
       await addGeminiKey(workspaceId, trimmed);
@@ -52,7 +52,7 @@ function GeminiKeyModal() {
   };
 
   const handleDelete = async (key: GeminiKey) => {
-    if (!window.confirm("Delete this API key?")) return;
+    if (!window.confirm("Delete this API key?")) { return; }
     setDeletingId(key.id);
     try {
       await deleteGeminiKey(key.id);
@@ -66,7 +66,7 @@ function GeminiKeyModal() {
   };
 
   const handleActivate = async (key: GeminiKey) => {
-    if (key.isActive) return;
+    if (key.isActive) { return; }
     setActivatingId(key.id);
     try {
       await activateGeminiKey(key.id);
@@ -79,7 +79,7 @@ function GeminiKeyModal() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") void handleAdd();
+    if (e.key === "Enter") { void handleAdd(); }
   };
 
   return (

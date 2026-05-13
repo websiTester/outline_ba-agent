@@ -32,13 +32,13 @@ export default function SrsPromptModal({
   const [userContent, setUserContent] = useState("");
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) { return; }
     const base = currentOverride ?? agentTool?.defaultPrompt ?? "";
     setUserContent(extractUserContent(base));
   }, [isOpen, sectionId]);
 
   const handleApply = () => {
-    if (!agentTool) return;
+    if (!agentTool) { return; }
     const promptToSave =
       userContent.trim() === ""
         ? agentTool.defaultPrompt

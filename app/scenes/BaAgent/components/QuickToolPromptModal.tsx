@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X, Save, Loader2, CheckCircle2, Pencil, Settings, BrainCircuit } from 'lucide-react';
-import { AgentTool } from '../type';
+import type { AgentTool } from '../type';
 
 
 const DELIMITER = '<#>';
@@ -21,13 +21,13 @@ interface QuickToolPromptModalProps {
 
 function extractUserContent(toolPrompt: string): string {
   const parts = toolPrompt.split(DELIMITER);
-  if (parts.length < 3) return toolPrompt;
+  if (parts.length < 3) { return toolPrompt; }
   return parts[1].trim();
 }
 
 function replaceUserContent(toolPrompt: string, newContent: string): string {
   const parts = toolPrompt.split(DELIMITER);
-  if (parts.length < 3) return toolPrompt;
+  if (parts.length < 3) { return toolPrompt; }
   return `${parts[0]}${DELIMITER}\n${newContent}\n${DELIMITER}${parts[2]}`;
 }
 
@@ -41,13 +41,13 @@ export default function QuickToolPromptModal({
   const isExistingTool = !!selectedTool?.id;
 
   useEffect(() => {
-    if (!isOpen || !selectedTool) return;
+    if (!isOpen || !selectedTool) { return; }
     setUserContent(extractUserContent(selectedTool.defaultPrompt || ''));
     setSubmitStatus('idle');
   }, [isOpen, selectedTool]);
 
   const handleSave = async () => {
-    if (!isExistingTool) return;
+    if (!isExistingTool) { return; }
     setIsSubmitting(true);
     setSubmitStatus('idle');
     try {
@@ -57,7 +57,7 @@ export default function QuickToolPromptModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...selectedTool, toolPrompt: updatedToolPrompt }),
       });
-      if (!result.ok) throw new Error('Failed to save');
+      if (!result.ok) { throw new Error('Failed to save'); }
 
       setSubmitStatus('success');
       setTimeout(() => onSaved(), 600);
@@ -68,12 +68,12 @@ export default function QuickToolPromptModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) { return null; }
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) { onClose(); } }}
     >
       <div className="w-full max-w-2xl bg-white rounded-xl shadow-xl flex flex-col overflow-hidden">
         {/* Header */}
