@@ -1,5 +1,6 @@
 import { observer } from "mobx-react";
-import { SearchIcon, HomeIcon, SidebarIcon } from "outline-icons";
+import { SearchIcon, HomeIcon, SidebarIcon, SparklesIcon } from "outline-icons";
+import { Waypoints } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -110,8 +111,14 @@ function AppSidebar() {
               />
               <SidebarLink
                 to="/graph"
-                icon={<SearchIcon />}
+                icon={<Waypoints size={20} />}
                 label="Knowledge Graph"
+                exact={false}
+              />
+              <SidebarLink
+                to="/ba-agent"
+                icon={<SparklesIcon />}
+                label="BA Agent"
                 exact={false}
               />
               {can.createDocument && <DraftsLink />}

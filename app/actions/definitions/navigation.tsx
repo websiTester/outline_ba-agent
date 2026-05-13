@@ -13,12 +13,16 @@ import {
   ShapesIcon,
   DraftsIcon,
   BugIcon,
+  PlusIcon,
+  KeyIcon,
 } from "outline-icons";
 import { UrlHelper } from "@shared/utils/UrlHelper";
 import { isMac } from "@shared/utils/browser";
 import stores from "~/stores";
 import type SearchQuery from "~/models/SearchQuery";
 import KeyboardShortcuts from "~/scenes/KeyboardShortcuts";
+import GeminiKeyModal from "~/scenes/BaAgent/components/GeminiKeyModal";
+import ToolListModal from "~/scenes/BaAgent/components/ToolListModal";
 import {
   createAction,
   createExternalLinkAction,
@@ -233,6 +237,38 @@ export const downloadApp = createExternalLinkAction({
   visible: () => !Desktop.isElectron() && isMac && isCloudHosted,
   url: "https://desktop.getoutline.com",
   target: "_blank",
+});
+
+export const openToolManager = createAction({
+  name: () => "Add tool",
+  analyticsName: "Open tool manager",
+  section: NavigationSection,
+  iconInContextMenu: false,
+  icon: <PlusIcon />,
+  visible: ({ stores }) => !!stores.auth.user?.isAdmin,
+  perform: ({ stores }) => {
+    stores.dialogs.openModal({
+      title: "AI Tools",
+      content: <ToolListModal onClose={stores.dialogs.closeAllModals} />,
+      width: "680px",
+    });
+  },
+});
+
+export const openGeminiKeyManager = createAction({
+  name: () => "API Keys",
+  analyticsName: "Open Gemini key manager",
+  section: NavigationSection,
+  iconInContextMenu: false,
+  icon: <KeyIcon />,
+  visible: ({ stores }) => !!stores.auth.user?.isAdmin,
+  perform: ({ stores }) => {
+    stores.dialogs.openModal({
+      title: "Gemini API Keys",
+      content: <GeminiKeyModal />,
+      width: "520px",
+    });
+  },
 });
 
 export const logout = createAction({

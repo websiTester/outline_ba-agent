@@ -166,6 +166,7 @@
     "koa-sslify": "5.0.1",
     "koa-useragent": "^4.1.0",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.577.0",
     "mailparser": "^3.7.4",
     "mammoth": "^1.11.0",
     "markdown-it": "^14.1.0",

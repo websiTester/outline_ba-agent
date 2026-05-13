@@ -358,6 +358,10 @@ export type SourceMetadata = {
   trial?: boolean;
   /** The ID of the original document when this document was duplicated. */
   originalDocumentId?: string;
+  /** The SRS section ID this document was generated from (e.g. "2.2"). */
+  srsSection?: string;
+  /** The SRS requirement type for documents created by the split feature. */
+  srsType?: "functional_requirement" | "non_functional_requirement";
 };
 
 export type CustomTheme = {

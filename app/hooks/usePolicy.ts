@@ -1,7 +1,13 @@
 import { useEffect } from "react";
-import type Model from "~/models/base/Model";
 import useCurrentUser from "./useCurrentUser";
 import useStores from "./useStores";
+
+type PolicyEntity = {
+  id: string;
+  isNew: boolean;
+  isSaving: boolean;
+  loadRelations: () => Promise<unknown>;
+};
 
 /**
  * Retrieve the abilities of a policy for a given entity, if the policy is not
@@ -10,7 +16,7 @@ import useStores from "./useStores";
  * @param entity The model or model id
  * @returns The policy for the model
  */
-export default function usePolicy(entity?: string | Model | null) {
+export default function usePolicy(entity?: string | PolicyEntity | null) {
   const { policies } = useStores();
   const user = useCurrentUser({ rejectOnEmpty: false });
   const entityId = entity

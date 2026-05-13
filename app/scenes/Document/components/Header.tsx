@@ -36,6 +36,8 @@ import TableOfContentsMenu from "~/menus/TableOfContentsMenu";
 import TemplatesMenu from "~/menus/TemplatesMenu";
 import env from "~/env";
 import { documentEditPath } from "~/utils/routeHelpers";
+import SplitRequirementsButton from "~/scenes/BaAgent/components/SplitRequirementsButton";
+import FrDocumentActionsMenu from "~/scenes/BaAgent/components/FrDocumentActionsMenu";
 import ObservingBanner from "./ObservingBanner";
 import PublicBreadcrumb from "./PublicBreadcrumb";
 import ShareButton from "./ShareButton";
@@ -347,6 +349,20 @@ function DocumentHeader({
                 </Button>
               </Action>
             )}
+            {!isRevision && document.sourceMetadata?.srsSection && (
+              <Action>
+                <SplitRequirementsButton
+                  document={document as Document}
+                  editorRef={editorRef}
+                />
+              </Action>
+            )}
+            {!isRevision &&
+              document.sourceMetadata?.srsType === "functional_requirement" && (
+                <Action>
+                  <FrDocumentActionsMenu document={document as Document} />
+                </Action>
+              )}
             {!isDeleted && <Separator />}
             <Action>
               <DocumentMenu

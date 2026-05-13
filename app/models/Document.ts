@@ -80,6 +80,10 @@ export default class Document extends ArchivableModel implements Searchable {
     createdByName?: string;
     /** The name of the file this document was imported from. */
     fileName?: string;
+    /** The SRS section ID this document was generated from (e.g. "2.2"). */
+    srsSection?: string;
+    /** The SRS requirement type for documents created by the split feature. */
+    srsType?: "functional_requirement" | "non_functional_requirement";
   };
 
   @computed

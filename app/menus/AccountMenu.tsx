@@ -10,6 +10,8 @@ import {
   openAPIDocumentation,
   openBugReportUrl,
   openFeedbackUrl,
+  openToolManager,
+  openGeminiKeyManager,
   logout,
 } from "~/actions/definitions/navigation";
 import { changeTheme } from "~/actions/definitions/settings";
@@ -36,6 +38,8 @@ const AccountMenu: React.FC = ({ children }: Props) => {
       changeTheme,
       navigateToProfileSettings,
       navigateToAccountPreferences,
+      openToolManager,
+      openGeminiKeyManager,
       ActionSeparator,
       logout,
     ],
