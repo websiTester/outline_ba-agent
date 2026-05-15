@@ -7,6 +7,7 @@
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "baseUrl": ".",
     "jsx": "react-jsx",
     "lib": [
       "dom",
@@ -15,7 +16,7 @@
       "esnext.asynciterable"
     ],
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "noErrorTruncation": true,
     "noImplicitAny": true,
     "noImplicitOverride": false,
@@ -26,7 +27,7 @@
     "strictNullChecks": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "target": "es2020",
     "paths": {
       "@server/*": [

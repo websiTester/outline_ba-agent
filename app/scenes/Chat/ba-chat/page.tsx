@@ -4,7 +4,6 @@ import GeminiKeyModal from "~/scenes/BaAgent/components/GeminiKeyModal";
 import { ChatConversation } from "./components/ChatConversation";
 import { toDisplayConversation, toDisplayMessage } from "./helper";
 import {
-  GeminiKeyError,
   createConversation,
   deleteConversation,
   fetchConversations,
@@ -13,6 +12,7 @@ import {
   renameConversation,
   sendMessage,
 } from "./lib/api";
+import type { GeminiKeyError } from "./lib/api";
 import type { Conversation, Message, QuickAction } from "./types";
 
 function BAChatPage() {

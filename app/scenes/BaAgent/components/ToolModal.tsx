@@ -18,7 +18,7 @@ const MODEL_OPTIONS = ["gemini-2.5-flash"];
 function useProfessionalFonts() {
   useEffect(() => {
     const id = "tool-modal-fonts";
-    if (document.getElementById(id)) return;
+    if (document.getElementById(id)) { return; }
     const link = document.createElement("link");
     link.id = id;
     link.rel = "stylesheet";
@@ -180,9 +180,9 @@ function ToolModal({ open, onClose, sectionId, label, onSaveSuccess }: ToolModal
 
   // Ctrl+Enter to save
   useEffect(() => {
-    if (!open) return;
+    if (!open) { return; }
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") handleSave();
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { handleSave(); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
