@@ -27,7 +27,7 @@
     "strictNullChecks": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "target": "es2020",
     "paths": {
       "@server/*": [
