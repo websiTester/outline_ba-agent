@@ -10,7 +10,7 @@ from models.gemini_api_key import GeminiApiKey
 from services.encryption_service import decrypt_key
 
 
-async def _get_active_key_record(workspace_id: str) -> GeminiApiKey:
+async def get_active_key_record(workspace_id: str) -> GeminiApiKey:
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(GeminiApiKey)
@@ -25,7 +25,7 @@ async def _get_active_key_record(workspace_id: str) -> GeminiApiKey:
         return key
 
 
-async def _rotate_to_next_key(workspace_id: str, failed_key_id: str) -> GeminiApiKey | None:
+async def rotate_to_next_key(workspace_id: str, failed_key_id: str) -> GeminiApiKey | None:
     async with AsyncSessionLocal() as db:
         all_result = await db.execute(
             select(GeminiApiKey)
@@ -74,7 +74,7 @@ async def call_gemini(
     tried_key_ids: set[str] = set()
 
     while True:
-        key_record = await _get_active_key_record(workspace_id)
+        key_record = await get_active_key_record(workspace_id)
 
         if key_record.id in tried_key_ids:
             raise RuntimeError("All API keys exhausted for this workspace")
@@ -89,7 +89,7 @@ async def call_gemini(
             response = await llm.ainvoke(messages)
             return str(response.content)
         except ResourceExhausted:
-            next_key = await _rotate_to_next_key(workspace_id, key_record.id)
+            next_key = await rotate_to_next_key(workspace_id, key_record.id)
             if next_key is None:
                 raise RuntimeError("All API keys exhausted for this workspace")
 
@@ -103,7 +103,7 @@ async def call_gemini_structured(
     tried_key_ids: set[str] = set()
 
     while True:
-        key_record = await _get_active_key_record(workspace_id)
+        key_record = await get_active_key_record(workspace_id)
 
         if key_record.id in tried_key_ids:
             raise RuntimeError("All API keys exhausted for this workspace")
@@ -113,6 +113,6 @@ async def call_gemini_structured(
         try:
             return await llm.with_structured_output(schema).ainvoke(prompt)
         except ResourceExhausted:
-            next_key = await _rotate_to_next_key(workspace_id, key_record.id)
+            next_key = await rotate_to_next_key(workspace_id, key_record.id)
             if next_key is None:
                 raise RuntimeError("All API keys exhausted for this workspace")

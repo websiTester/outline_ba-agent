@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 import { SearchIcon, HomeIcon, SidebarIcon, SparklesIcon } from "outline-icons";
-import { Waypoints } from "lucide-react";
+import { MessageSquare, Waypoints } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -118,7 +118,13 @@ function AppSidebar() {
               <SidebarLink
                 to="/ba-agent"
                 icon={<SparklesIcon />}
-                label="BA Agent"
+                label="Generate Documents"
+                exact={false}
+              />
+              <SidebarLink
+                to="/chat"
+                icon={<MessageSquare size={20} />}
+                label="Chat"
                 exact={false}
               />
               {can.createDocument && <DraftsLink />}

@@ -250,6 +250,21 @@ export class Environment {
     .replace(/^http/, "ws");
 
   /**
+   * URL of the internal Python FastAPI backend that hosts LightRAG and other
+   * RAG endpoints. Called server-to-server only — not exposed to the browser.
+   * Defaults to http://localhost:8000 for local development.
+   */
+  @IsOptional()
+  @IsUrl({
+    require_tld: false,
+    require_protocol: true,
+    protocols: ["http", "https"],
+  })
+  public PYTHON_BACKEND_URL = (
+    environment.PYTHON_BACKEND_URL ?? "http://localhost:8000"
+  ).replace(/\/$/, "");
+
+  /**
    * The maximum number of network clients that can be connected to a single
    * document at once. Defaults to 100.
    */

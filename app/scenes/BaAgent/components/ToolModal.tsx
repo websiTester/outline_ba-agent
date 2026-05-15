@@ -55,41 +55,40 @@ function InstructionEditor({ value, onChange, disabled }: InstructionEditorProps
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       {/* Editor top bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800">
+      <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
-            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+            <span className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
+            <span className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
           </div>
           <span
-            className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 ml-1"
+            className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             System Instruction
           </span>
         </div>
         <div
-          className="flex items-center gap-2 text-[10px] text-slate-600"
+          className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
           <span>{charCount.toLocaleString()} chars</span>
-          <span className="text-slate-700">·</span>
+          <span className="text-slate-300 dark:text-slate-600">·</span>
           <span>~{tokenEstimate.toLocaleString()} tokens</span>
         </div>
       </div>
 
       {/* Line numbers + textarea */}
-      <div className="flex bg-slate-950" style={{ maxHeight: 480, minHeight: 200 }}>
+      <div className="flex bg-slate-50 dark:bg-slate-900/60" style={{ maxHeight: 480, minHeight: 200 }}>
         {/* Line numbers */}
         <div
           ref={lineNumRef}
-          className="overflow-hidden select-none flex-shrink-0 w-10 bg-slate-900 border-r border-slate-800 py-2.5 text-right pr-2.5"
+          className="overflow-hidden select-none flex-shrink-0 w-10 bg-slate-100 dark:bg-slate-800/60 border-r border-slate-200 dark:border-slate-700 py-2.5 text-right pr-2.5 text-slate-400 dark:text-slate-500"
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 11.5,
             lineHeight: "20px",
-            color: "#4B5563",
             overflowY: "hidden",
           }}
         >
@@ -106,12 +105,11 @@ function InstructionEditor({ value, onChange, disabled }: InstructionEditorProps
           onScroll={syncScroll}
           disabled={disabled}
           placeholder="Enter system-level instructions for the agent…"
-          className="flex-1 bg-transparent resize-none focus:outline-none py-2.5 px-3 disabled:opacity-50 disabled:cursor-not-allowed placeholder-slate-700"
+          className="flex-1 bg-transparent resize-none focus:outline-none py-2.5 px-3 disabled:opacity-50 disabled:cursor-not-allowed placeholder-slate-400 dark:placeholder-slate-600 text-slate-700 dark:text-slate-200"
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 12.5,
             lineHeight: "20px",
-            color: "#E2E8F0",
             overflowY: "auto",
             maxHeight: 480,
             minHeight: 200,
