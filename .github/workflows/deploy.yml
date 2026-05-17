@@ -168,6 +168,7 @@ jobs:
           FORCE_HTTPS=true
           SECRET_KEY=${{ secrets.OUTLINE_SECRET_KEY }}
           UTILS_SECRET=${{ secrets.OUTLINE_UTILS_SECRET }}
+          ENCRYPTION_SECRET=${{ secrets.ENCRYPTION_SECRET }}
           DEFAULT_LANGUAGE=en_US
 
           # ─── Databases (shared with FastAPI) ───
