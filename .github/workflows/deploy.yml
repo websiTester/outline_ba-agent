@@ -1,0 +1,276 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # manual trigger
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false # never cancel a deploy mid-flight
+
+env:
+  REGISTRY: ghcr.io
+  OUTLINE_BASE_IMAGE: ${{ github.repository_owner }}/outline-ba-base
+  OUTLINE_IMAGE: ${{ github.repository_owner }}/outline-ba-outline
+  FASTAPI_IMAGE: ${{ github.repository_owner }}/outline-ba-fastapi
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # 1) Build Outline base image (heavy: node_modules + i18n)
+  # ──────────────────────────────────────────────────────────
+  build-outline-base:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ env.REGISTRY }}/${{ env.OUTLINE_BASE_IMAGE }}:${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase image name
+        id: img
+        run: echo "name=$(echo '${{ env.OUTLINE_BASE_IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Build & push outline-base
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.base
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.img.outputs.name }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ steps.img.outputs.name }}:latest
+          platforms: linux/amd64
+          cache-from: type=gha,scope=outline-base
+          cache-to: type=gha,scope=outline-base,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # 2) Build Outline runtime image (on top of base)
+  # ──────────────────────────────────────────────────────────
+  build-outline:
+    runs-on: ubuntu-latest
+    needs: build-outline-base
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase image names
+        id: img
+        run: |
+          echo "outline=$(echo '${{ env.OUTLINE_IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "base=$(echo '${{ env.OUTLINE_BASE_IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Build & push outline
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          build-args: |
+            BASE_IMAGE=${{ env.REGISTRY }}/${{ steps.img.outputs.base }}:${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.img.outputs.outline }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ steps.img.outputs.outline }}:latest
+          platforms: linux/amd64
+          cache-from: type=gha,scope=outline
+          cache-to: type=gha,scope=outline,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # 3) Build FastAPI image (parallel with outline build)
+  # ──────────────────────────────────────────────────────────
+  build-fastapi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase image name
+        id: img
+        run: echo "name=$(echo '${{ env.FASTAPI_IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Build & push fastapi
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.img.outputs.name }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ steps.img.outputs.name }}:latest
+          platforms: linux/amd64
+          cache-from: type=gha,scope=fastapi
+          cache-to: type=gha,scope=fastapi,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # 4) Deploy: render .env, ship to VM, docker compose up
+  # ──────────────────────────────────────────────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-outline, build-fastapi]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Lowercase image names
+        id: img
+        run: |
+          echo "outline=$(echo '${{ env.OUTLINE_IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "fastapi=$(echo '${{ env.FASTAPI_IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Render .env.production
+        run: |
+          cat > .env.production <<EOF
+          # ─── Outline runtime ───
+          NODE_ENV=production
+          URL=https://windyselfhost.online
+          PORT=3000
+          FORCE_HTTPS=true
+          SECRET_KEY=${{ secrets.OUTLINE_SECRET_KEY }}
+          UTILS_SECRET=${{ secrets.OUTLINE_UTILS_SECRET }}
+          DEFAULT_LANGUAGE=en_US
+
+          # ─── Databases (shared with FastAPI) ───
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DATABASE_URL=postgres://outline:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/outline
+          PGSSLMODE=disable
+          REDIS_URL=redis://redis:6379
+          NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}
+
+          # ─── Authentication: Google OAuth ───
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+          # ─── SMTP: Gmail with App Password ───
+          SMTP_HOST=smtp.gmail.com
+          SMTP_PORT=587
+          SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM_EMAIL=${{ secrets.SMTP_USERNAME }}
+          SMTP_SECURE=false
+
+          # ─── File storage: Azure Blob (S3-compatible) ───
+          FILE_STORAGE=s3
+          AWS_ACCESS_KEY_ID=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
+          AWS_REGION=eastasia
+          AWS_S3_UPLOAD_BUCKET_URL=https://${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}.blob.core.windows.net
+          AWS_S3_UPLOAD_BUCKET_NAME=outline-attachments
+          AWS_S3_FORCE_PATH_STYLE=true
+          AWS_S3_ACL=private
+
+          # ─── Backend wiring ───
+          PYTHON_BACKEND_URL=http://fastapi:8000
+          NEXT_PUBLIC_BASE_URL=https://api.windyselfhost.online
+
+          # ─── Sentry error tracking ───
+          SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+
+          # ─── FastAPI CORS ───
+          CORS_ALLOWED_ORIGINS=https://windyselfhost.online
+
+          # ─── Image tags (consumed by docker-compose.prod.yml) ───
+          OUTLINE_IMAGE=${{ env.REGISTRY }}/${{ steps.img.outputs.outline }}:${{ github.sha }}
+          FASTAPI_IMAGE=${{ env.REGISTRY }}/${{ steps.img.outputs.fastapi }}:${{ github.sha }}
+
+          # ─── Logging ───
+          LOG_LEVEL=info
+          DEBUG=http
+          EOF
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.AZURE_VM_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Copy .env and compose to VM
+        run: |
+          scp -i ~/.ssh/id_ed25519 \
+              .env.production \
+              docker-compose.prod.yml \
+              Caddyfile \
+              ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}:/opt/outline-ba/
+
+      - name: Copy backup scripts
+        run: |
+          scp -i ~/.ssh/id_ed25519 -r \
+              scripts \
+              ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}:/opt/outline-ba/
+
+      - name: Pull images & restart on VM
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }} <<'REMOTE'
+          set -euo pipefail
+          cd /opt/outline-ba
+          # Atomic .env swap
+          mv .env.production .env
+          # Pull only the 2 app images (DB/Redis/Neo4j/Caddy stay)
+          docker compose -f docker-compose.prod.yml pull outline fastapi caddy postgres redis neo4j
+          # Up with the new images, recreate only what changed
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          # Prune dangling images to free disk
+          docker image prune -f
+          REMOTE
+
+      - name: Health check
+        run: |
+          # Wait up to 2 minutes for new containers to be healthy
+          for i in {1..24}; do
+            if curl -fsS https://windyselfhost.online/_health > /dev/null 2>&1; then
+              echo "✅ Outline healthy"
+              break
+            fi
+            echo "Waiting for Outline... ($i/24)"
+            sleep 5
+          done
+          curl -fsS https://api.windyselfhost.online/health || (echo "❌ FastAPI not healthy" && exit 1)
+          echo "✅ FastAPI healthy"
+
+      - name: Notify Healthchecks.io (deploy success)
+        if: success() && env.DEPLOY_HC_PING_URL != ''
+        env:
+          DEPLOY_HC_PING_URL: ${{ secrets.DEPLOY_HC_PING_URL }}
+        run: curl -fsS -m 10 --retry 3 "$DEPLOY_HC_PING_URL" || true

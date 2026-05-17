@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────
+# Caddy reverse proxy for Outline-BA
+# - Auto Let's Encrypt cert for both domains
+# - HTTP → HTTPS redirect (Caddy default)
+# - WebSocket support out of the box
+# - Real client IP forwarded to upstream
+# ─────────────────────────────────────────────────────────────
+
+{
+	# Email for Let's Encrypt expiry notifications. CHANGE THIS to your real email.
+	email khuditru1520@gmail.com
+
+	# Set log level (use DEBUG only while troubleshooting cert issuance)
+	# debug
+}
+
+# ───────── Outline (Koa + React monolith) at root domain ─────────
+windyselfhost.online {
+	encode zstd gzip
+
+	# Security headers
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Reverse proxy to Outline container on Docker network
+	reverse_proxy outline:3000 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		# WebSocket upgrade for Hocuspocus collaboration
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# ───────── FastAPI Python backend at api subdomain ─────────
+api.windyselfhost.online {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Reverse proxy to FastAPI container
+	reverse_proxy fastapi:8000 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Optional: www → root redirect (commented out — uncomment if you also add `www` DNS record)
+# www.windyselfhost.online {
+# 	redir https://windyselfhost.online{uri} permanent
+# }

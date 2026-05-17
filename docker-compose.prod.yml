@@ -1,0 +1,180 @@
+# ─────────────────────────────────────────────────────────────
+# Production Docker Compose for Outline-BA
+# Stack: Outline (Koa+React) + FastAPI (Python) + Postgres+pgvector + Redis + Neo4j + Caddy
+# Deployed to Azure VM B2ms (Ubuntu 24.04), 2 vCPU / 8 GB RAM
+# ─────────────────────────────────────────────────────────────
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ───────── Reverse proxy: Caddy with auto Let's Encrypt ─────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+    logging: *default-logging
+    depends_on:
+      - outline
+      - fastapi
+
+  # ───────── Outline (Koa + React, monolithic) ─────────
+  outline:
+    image: ${OUTLINE_IMAGE:-ghcr.io/truongkdhe181747/outline-ba-outline:latest}
+    container_name: outline
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://outline:${POSTGRES_PASSWORD}@postgres:5432/outline
+      REDIS_URL: redis://redis:6379
+      PYTHON_BACKEND_URL: http://fastapi:8000
+      FORCE_HTTPS: "true"
+    networks:
+      - web
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/_health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging: *default-logging
+
+  # ───────── FastAPI Python backend (LightRAG + Gemini) ─────────
+  fastapi:
+    image: ${FASTAPI_IMAGE:-ghcr.io/truongkdhe181747/outline-ba-fastapi:latest}
+    container_name: fastapi
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://outline:${POSTGRES_PASSWORD}@postgres:5432/outline
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      NEO4J_DATABASE: neo4j
+      CORS_ALLOWED_ORIGINS: https://windyselfhost.online
+      LIGHTRAG_WORKING_DIR: /app/working_dir
+    volumes:
+      - fastapi_working_dir:/app/working_dir
+    networks:
+      - web
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging: *default-logging
+
+  # ───────── PostgreSQL with pgvector extension ─────────
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: outline
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: outline
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U outline -d outline"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging: *default-logging
+
+  # ───────── Redis for Outline queue (Bull) + Hocuspocus collaboration ─────────
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  # ───────── Neo4j Community for Knowledge Graph ─────────
+  neo4j:
+    image: neo4j:5-community
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
+      NEO4J_dbms_memory_heap_max__size: 2G
+      NEO4J_dbms_memory_pagecache_size: 1G
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*"
+      NEO4JLABS_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- --user=neo4j --password=$$NEO4J_PASSWORD http://localhost:7474 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    logging: *default-logging
+
+# ─────────────────────────────────────────────────────────────
+# Networks: split into `web` (caddy-facing) and `backend` (DB-facing)
+# Postgres/Redis/Neo4j only on `backend` → not reachable from outside
+# ─────────────────────────────────────────────────────────────
+networks:
+  web:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: false  # set to true if you want to fully isolate; keep false for outbound LLM API calls
+
+# ─────────────────────────────────────────────────────────────
+# Persistent volumes — these survive `docker compose down`
+# Located on Azure VM disk (Standard SSD E6 64GB)
+# ─────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+  redis_data:
+  neo4j_data:
+  neo4j_logs:
+  fastapi_working_dir:
+  caddy_data:
+  caddy_config:

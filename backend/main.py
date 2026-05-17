@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -97,9 +98,16 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="BA Agent API", lifespan=lifespan)
 
+_cors_origins_env = os.getenv("CORS_ALLOWED_ORIGINS", "*").strip()
+_cors_origins = (
+    ["*"]
+    if _cors_origins_env == "*"
+    else [origin.strip() for origin in _cors_origins_env.split(",") if origin.strip()]
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
+    allow_credentials=_cors_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -1,0 +1,38 @@
+# Virtual environment (rebuilt inside container)
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local LightRAG state (mounted as volume in production)
+working_dir/
+rag_storage/
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Secrets — never bake into image
+.env
+.env.*
+!.env.sample
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Documentation that isn't needed at runtime
+*.md
+docs/
