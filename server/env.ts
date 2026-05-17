@@ -265,6 +265,22 @@ export class Environment {
   ).replace(/\/$/, "");
 
   /**
+   * Public URL of the FastAPI backend reachable from the browser. Injected into
+   * window.env so React can fetch directly (e.g. BaAgent tools_management).
+   * Defaults to http://localhost:8000 for local development.
+   */
+  @Public
+  @IsOptional()
+  @IsUrl({
+    require_tld: false,
+    require_protocol: true,
+    protocols: ["http", "https"],
+  })
+  public NEXT_PUBLIC_BASE_URL = (
+    environment.NEXT_PUBLIC_BASE_URL ?? "http://localhost:8000"
+  ).replace(/\/$/, "");
+
+  /**
    * The maximum number of network clients that can be connected to a single
    * document at once. Defaults to 100.
    */

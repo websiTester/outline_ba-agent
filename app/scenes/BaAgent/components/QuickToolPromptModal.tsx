@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { X, Save, Loader2, CheckCircle2, Pencil, Settings, BrainCircuit } from 'lucide-react';
+import env from '~/env';
 import type { AgentTool } from '../type';
 
 
 const DELIMITER = '<#>';
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+const baseUrl = env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000";
 const updateApiUrl = `${baseUrl}/tools_management/update_tool`;
 
 interface QuickToolPromptModalProps {
