@@ -226,6 +226,9 @@ jobs:
           # ─── FastAPI CORS ───
           CORS_ALLOWED_ORIGINS=https://windyselfhost.online
 
+          # ─── Multi-workspace mode (subdomain routing) ───
+          SUBDOMAINS_ENABLED=true
+
           # ─── Image tags (consumed by docker-compose.prod.yml) ───
           OUTLINE_IMAGE=${{ env.REGISTRY }}/${{ steps.img.outputs.outline }}:${{ github.sha }}
           FASTAPI_IMAGE=${{ env.REGISTRY }}/${{ steps.img.outputs.fastapi }}:${{ github.sha }}
