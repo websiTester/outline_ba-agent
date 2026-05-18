@@ -39,8 +39,12 @@ const getBucketOrigin = () => {
 export default function createCSPMiddleware() {
   // Construct scripts CSP based on options in use
   const defaultSrc: string[] = ["'self'"];
-  const scriptSrc: string[] = [];
+  // Include 'self' so subdomain workspaces (SUBDOMAINS_ENABLED) can load their own assets;
+  // env.URL alone is only the root domain.
+  const scriptSrc: string[] = ["'self'"];
   const styleSrc: string[] = ["'self'", "'unsafe-inline'"];
+  const fontSrc: string[] = ["'self'", "data:"];
+  const workerSrc: string[] = ["'self'", "blob:"];
   const objectSrc: string[] = [env.URL, "'self'"];
 
   if (env.isCloudHosted) {
@@ -81,6 +85,8 @@ export default function createCSPMiddleware() {
         baseUri: ["'none'"],
         defaultSrc,
         styleSrc,
+        fontSrc,
+        workerSrc,
         scriptSrc: [
           ...uniq(scriptSrc),
           env.DEVELOPMENT_UNSAFE_INLINE_CSP
