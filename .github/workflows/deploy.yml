@@ -192,7 +192,8 @@ jobs:
           REQUEST_TIMEOUT=900000
 
           # ─── Outline feature flags ───
-          
+          IS_CLOUD_HOSTED=true
+
 
           # ─── Authentication: Google OAuth ───
           GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
