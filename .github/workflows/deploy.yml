@@ -225,7 +225,9 @@ jobs:
           SENTRY_DSN=${{ secrets.SENTRY_DSN }}
 
           # ─── FastAPI CORS ───
-          CORS_ALLOWED_ORIGINS=https://windyselfhost.online
+          # Regex matches root + any single-level subdomain (for multi-workspace mode)
+          # Examples allowed: windyselfhost.online, fpt-edu.windyselfhost.online, team2.windyselfhost.online
+          CORS_ALLOWED_ORIGIN_REGEX=https://([a-z0-9-]+\.)?windyselfhost\.online$
 
           # ─── Multi-workspace mode (subdomain routing) ───
           SUBDOMAINS_ENABLED=true

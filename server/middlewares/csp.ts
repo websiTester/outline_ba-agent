@@ -44,7 +44,6 @@ export default function createCSPMiddleware() {
   const scriptSrc: string[] = ["'self'"];
   const styleSrc: string[] = ["'self'", "'unsafe-inline'"];
   const fontSrc: string[] = ["'self'", "data:"];
-  const workerSrc: string[] = ["'self'", "blob:"];
   const objectSrc: string[] = [env.URL, "'self'"];
 
   if (env.isCloudHosted) {
@@ -86,7 +85,6 @@ export default function createCSPMiddleware() {
         defaultSrc,
         styleSrc,
         fontSrc,
-        workerSrc,
         scriptSrc: [
           ...uniq(scriptSrc),
           env.DEVELOPMENT_UNSAFE_INLINE_CSP

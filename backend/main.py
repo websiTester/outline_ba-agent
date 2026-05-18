@@ -99,15 +99,22 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(title="BA Agent API", lifespan=lifespan)
 
 _cors_origins_env = os.getenv("CORS_ALLOWED_ORIGINS", "*").strip()
-_cors_origins = (
-    ["*"]
-    if _cors_origins_env == "*"
-    else [origin.strip() for origin in _cors_origins_env.split(",") if origin.strip()]
-)
+_cors_regex_env = os.getenv("CORS_ALLOWED_ORIGIN_REGEX", "").strip()
+
+if _cors_origins_env == "*":
+    _cors_origins: list[str] = ["*"]
+else:
+    _cors_origins = [
+        origin.strip() for origin in _cors_origins_env.split(",") if origin.strip()
+    ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_credentials=_cors_origins != ["*"],
+    allow_origin_regex=_cors_regex_env or None,
+    # Credentials only allowed when origins are specific (not "*").
+    # Regex mode is considered specific.
+    allow_credentials=bool(_cors_regex_env) or _cors_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
