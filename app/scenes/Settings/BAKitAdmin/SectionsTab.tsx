@@ -330,7 +330,9 @@ function ExamplesEditor({
   };
 
   const handleRemove = async (exampleId: string) => {
-    if (!window.confirm("Remove this example?")) return;
+    if (!window.confirm("Remove this example?")) {
+      return;
+    }
     await api.removeSectionExample(templateId, section.id, exampleId);
     await onSaved();
   };

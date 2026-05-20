@@ -74,7 +74,9 @@ function Gallery() {
         open={!!warningRetry}
         onClose={() => setWarningRetry(null)}
         onProceed={async () => {
-          if (warningRetry) await warningRetry(true);
+          if (warningRetry) {
+            await warningRetry(true);
+          }
           setWarningRetry(null);
         }}
       />

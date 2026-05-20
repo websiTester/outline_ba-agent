@@ -55,12 +55,20 @@ export function isSectionStale(
   if (section.status !== "done" && section.status !== "done_unsynced") {
     return false;
   }
-  if (!section.completedAt) return false;
+  if (!section.completedAt) {
+    return false;
+  }
   const myTime = new Date(section.completedAt).getTime();
   return allSections.some((other) => {
-    if (other.orderIndex >= section.orderIndex) return false;
-    if (other.status !== "done" && other.status !== "done_unsynced") return false;
-    if (!other.completedAt) return false;
+    if (other.orderIndex >= section.orderIndex) {
+      return false;
+    }
+    if (other.status !== "done" && other.status !== "done_unsynced") {
+      return false;
+    }
+    if (!other.completedAt) {
+      return false;
+    }
     return new Date(other.completedAt).getTime() > myTime;
   });
 }
@@ -70,7 +78,9 @@ export function isSectionStale(
  * Used by the JobView header bar progress badge.
  */
 export function jobProgressPercent(job: JobDetail): number {
-  if (!job.sections.length) return 0;
+  if (!job.sections.length) {
+    return 0;
+  }
   const terminal = job.sections.filter(
     (s) =>
       s.status === "done" ||
@@ -84,7 +94,9 @@ export function jobProgressPercent(job: JobDetail): number {
  * Whether the job is in a state where polling should continue.
  */
 export function isJobActive(job: JobDetail | null): boolean {
-  if (!job) return false;
+  if (!job) {
+    return false;
+  }
   return (
     job.status === "pending" ||
     job.status === "running" ||

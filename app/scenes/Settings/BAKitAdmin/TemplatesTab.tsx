@@ -57,7 +57,9 @@ export default function TemplatesTab({
   };
 
   const handleDelete = async (t: TemplateSummary) => {
-    if (!window.confirm(`Delete ${t.code}? This cannot be undone.`)) return;
+    if (!window.confirm(`Delete ${t.code}? This cannot be undone.`)) {
+      return;
+    }
     try {
       await api.deleteTemplate(t.id);
       await onRefresh();
@@ -89,7 +91,9 @@ export default function TemplatesTab({
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0];
-            if (f) void handleUpload(f);
+            if (f) {
+              void handleUpload(f);
+            }
             e.target.value = ""; // allow re-upload same filename
           }}
         />

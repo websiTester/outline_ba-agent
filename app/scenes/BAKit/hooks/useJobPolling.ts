@@ -104,7 +104,9 @@ export function useJobPolling(jobId: string | null): JobDetail | null {
       // step 5: opportunistically sync any newly-done sections into the doc
       if (detail) {
         await syncDoneSections(detail, inFlightRef.current);
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
       }
 
       // step 6: decide whether to keep polling
@@ -132,7 +134,9 @@ export function useJobPolling(jobId: string | null): JobDetail | null {
       // eslint-disable-next-line no-console
       console.log("[BAKit polling] hook cleanup, jobId=", jobId);
       cancelled = true;
-      if (timer) clearTimeout(timer);
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
   }, [jobId, baKit]);
 
@@ -150,7 +154,9 @@ async function syncDoneSections(
   inFlight: Set<string>
 ): Promise<void> {
   // We can only append when we have a target document.
-  if (!job.outlineDocumentId) return;
+  if (!job.outlineDocumentId) {
+    return;
+  }
 
   // Sort by orderIndex so the markdown ends up in the natural reading order.
   const pending = job.sections

@@ -20,7 +20,9 @@ type Props = {
 export default function EmptyContextWarningDialog({ open, onClose, onProceed }: Props) {
   const [busy, setBusy] = useState(false);
 
-  if (!open) return null;
+  if (!open) {
+    return null;
+  }
 
   const handleProceed = async () => {
     setBusy(true);

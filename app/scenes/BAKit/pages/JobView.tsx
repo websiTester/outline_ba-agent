@@ -62,13 +62,17 @@ function JobView() {
 
   // step 2: auto-select the most interesting section: awaiting → running → first pending → first
   useEffect(() => {
-    if (!job || selectedId) return;
+    if (!job || selectedId) {
+      return;
+    }
     const priority =
       job.sections.find((s) => s.status === "awaiting_input") ||
       job.sections.find((s) => s.status === "running") ||
       job.sections.find((s) => s.status === "pending") ||
       job.sections[0];
-    if (priority) setSelectedId(priority.id);
+    if (priority) {
+      setSelectedId(priority.id);
+    }
   }, [job, selectedId]);
 
   if (!job) {

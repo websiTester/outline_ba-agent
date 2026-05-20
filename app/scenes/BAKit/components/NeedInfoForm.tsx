@@ -67,7 +67,9 @@ export default function NeedInfoForm({
   const locked = submitting || skipping;
 
   const handleSubmit = async () => {
-    if (locked || !anyAnswered) return;
+    if (locked || !anyAnswered) {
+      return;
+    }
     setSubmitting(true);
     try {
       await onSubmit(answers);
@@ -83,7 +85,9 @@ export default function NeedInfoForm({
   };
 
   const handleSkip = async () => {
-    if (locked) return;
+    if (locked) {
+      return;
+    }
     setSkipping(true);
     try {
       await onSkip();

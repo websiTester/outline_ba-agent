@@ -170,7 +170,9 @@ export async function uploadTemplate(
 ): Promise<TemplateDetail> {
   const form = new FormData();
   form.append("file", file);
-  if (code) form.append("code", code);
+  if (code) {
+    form.append("code", code);
+  }
   const res = await client.post("/ba-kit.admin.templates.upload", form);
   return (res?.data ?? res) as TemplateDetail;
 }

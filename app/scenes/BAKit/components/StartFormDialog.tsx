@@ -60,19 +60,25 @@ function StartFormDialog({ template, open, onClose, onStarted, onContextEmpty }:
 
   // step 2: pre-load workspace collections so the picker is populated
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     void (async () => {
       const res = await client.post("/collections.list", { limit: 100 });
       const list = (res?.data ?? []) as Array<{ id: string; name: string }>;
       setCollections(list);
-      if (list.length && !collectionId) setCollectionId(list[0].id);
+      if (list.length && !collectionId) {
+        setCollectionId(list[0].id);
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   // Pre-validate file count + size so we don't waste a multipart roundtrip.
   const handleAddFiles = (incoming: FileList | File[] | null) => {
-    if (!incoming) return;
+    if (!incoming) {
+      return;
+    }
     const next = [...files];
     for (const f of Array.from(incoming)) {
       if (next.length >= MAX_FILES) {
@@ -97,7 +103,9 @@ function StartFormDialog({ template, open, onClose, onStarted, onContextEmpty }:
 
   // step 3: shared submit logic — used for initial submit + the force-proceed retry
   const doStart = async (forceProceed: boolean) => {
-    if (!template) return;
+    if (!template) {
+      return;
+    }
     setSubmitting(true);
     try {
       // step 3a: create the Outline document up front so we have its id (Q10)
@@ -141,7 +149,9 @@ function StartFormDialog({ template, open, onClose, onStarted, onContextEmpty }:
     }
   };
 
-  if (!open || !template) return null;
+  if (!open || !template) {
+    return null;
+  }
 
   return (
     <div

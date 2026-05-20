@@ -20,7 +20,9 @@ import type { JobStatus } from "../types";
  * stay visually balanced even when the source description is long.
  */
 export function stripMarkdownPreview(input: string | null | undefined): string {
-  if (!input) return "";
+  if (!input) {
+    return "";
+  }
   let text = input.trim();
   // Drop blockquote prefixes that the kit uses for `FIS analog` callouts.
   text = text.replace(/^>\s+/gm, "");
@@ -43,14 +45,24 @@ export function stripMarkdownPreview(input: string | null | undefined): string {
  * locale date string for anything older than 7 days.
  */
 export function relativeTime(iso: string | null | undefined): string {
-  if (!iso) return "";
+  if (!iso) {
+    return "";
+  }
   const then = new Date(iso).getTime();
   const now = Date.now();
   const diffSec = Math.max(0, Math.round((now - then) / 1000));
-  if (diffSec < 45) return "just now";
-  if (diffSec < 60 * 60) return `${Math.round(diffSec / 60)} min ago`;
-  if (diffSec < 60 * 60 * 24) return `${Math.round(diffSec / 3600)} h ago`;
-  if (diffSec < 60 * 60 * 24 * 7) return `${Math.round(diffSec / 86400)} d ago`;
+  if (diffSec < 45) {
+    return "just now";
+  }
+  if (diffSec < 60 * 60) {
+    return `${Math.round(diffSec / 60)} min ago`;
+  }
+  if (diffSec < 60 * 60 * 24) {
+    return `${Math.round(diffSec / 3600)} h ago`;
+  }
+  if (diffSec < 60 * 60 * 24 * 7) {
+    return `${Math.round(diffSec / 86400)} d ago`;
+  }
   return new Date(iso).toLocaleDateString();
 }
 

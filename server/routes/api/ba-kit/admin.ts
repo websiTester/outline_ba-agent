@@ -130,7 +130,9 @@ router.post(
       fileItem.originalFilename || "template.md"
     );
     const code = ((ctx.request.body ?? {}) as Record<string, unknown>).code;
-    if (typeof code === "string" && code) form.append("code", code);
+    if (typeof code === "string" && code) {
+      form.append("code", code);
+    }
 
     const response = await fetch(`${PYTHON_URL}/ba-kit/admin/templates/upload`, {
       method: "POST",

@@ -84,13 +84,17 @@ export function registerGenerationRoutes(router: Router) {
       form.append("template_id", template_id);
       form.append("document_title", document_title);
       form.append("outline_collection_id", outline_collection_id);
-      if (outline_document_id) form.append("outline_document_id", outline_document_id);
+      if (outline_document_id) {
+        form.append("outline_document_id", outline_document_id);
+      }
       form.append("user_hint", user_hint);
       form.append("free_text_context", free_text_context);
       form.append("force_proceed", String(force_proceed));
 
       for (const file of fileList) {
-        if (!file.filepath) continue;
+        if (!file.filepath) {
+          continue;
+        }
         const buffer = await fs.promises.readFile(file.filepath);
         form.append(
           "files",
