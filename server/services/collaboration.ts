@@ -69,6 +69,11 @@ export default function init(
   server.on(
     "upgrade",
     function (req: IncomingMessage, socket: Duplex, head: Buffer) {
+      Logger.info(
+        "collaboration",
+        `[WS-trace] upgrade attempt — url=${req.url} host=${req.headers.host} origin=${req.headers.origin} upgrade=${req.headers.upgrade} connection=${req.headers.connection}`
+      );
+
       if (req.url?.startsWith(path)) {
         // parse document id and close connection if not present in request
         const documentId = url
@@ -76,6 +81,11 @@ export default function init(
           .pathname?.replace(path, "")
           .split("/")
           .pop();
+
+        Logger.info(
+          "collaboration",
+          `[WS-trace] /collaboration matched — documentId=${documentId ?? "(none)"} hasCookie=${!!req.headers.cookie}`
+        );
 
         if (documentId) {
           // Handle socket errors that may occur during upgrade (e.g., maxPayload exceeded)
@@ -117,9 +127,17 @@ export default function init(
         req.url?.startsWith("/realtime") &&
         serviceNames.includes("websockets")
       ) {
+        Logger.info(
+          "collaboration",
+          `[WS-trace] /realtime passing through to websockets service`
+        );
         // Nothing to do, the websockets service will handle this request
         return;
       }
+
+      Logger.warn(
+        `[WS-trace] rejecting upgrade with 400 — unmatched path: ${req.url}`
+      );
 
       // If the collaboration service is running it will close the connection
       socket.end(`HTTP/1.1 400 Bad Request\r\n`);

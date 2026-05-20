@@ -63,6 +63,11 @@ export default function init(
   server.on(
     "upgrade",
     function (req: IncomingMessage, socket: Duplex, head: Buffer) {
+      Logger.info(
+        "websockets",
+        `[WS-trace] realtime upgrade — url=${req.url} host=${req.headers.host} origin=${req.headers.origin} isCloudHosted=${env.isCloudHosted}`
+      );
+
       if (req.url?.startsWith(path) && ioHandleUpgrade) {
         // For on-premise deployments, ensure the websocket origin matches the deployed URL.
         // In cloud-hosted we support any origin for custom domains.
@@ -70,19 +75,33 @@ export default function init(
           !env.isCloudHosted &&
           (!req.headers.origin || !env.URL.startsWith(req.headers.origin))
         ) {
+          Logger.warn(
+            `[WS-trace] /realtime rejected — origin mismatch: ${req.headers.origin} vs ${env.URL}`
+          );
           socket.end(`HTTP/1.1 400 Bad Request\r\n`);
           return;
         }
 
+        Logger.info(
+          "websockets",
+          `[WS-trace] /realtime accepted — forwarding to engine.io`
+        );
         ioHandleUpgrade(req, socket, head);
         return;
       }
 
       if (serviceNames.includes("collaboration")) {
+        Logger.info(
+          "websockets",
+          `[WS-trace] non-realtime path, passing through to collaboration: ${req.url}`
+        );
         // Nothing to do, the collaboration service will handle this request
         return;
       }
 
+      Logger.warn(
+        `[WS-trace] realtime rejecting with 400 — unmatched path and no collaboration: ${req.url}`
+      );
       // If the collaboration service isn't running then we need to close the connection
       socket.end(`HTTP/1.1 400 Bad Request\r\n`);
     }
