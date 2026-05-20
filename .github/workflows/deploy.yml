@@ -280,17 +280,26 @@ jobs:
 
       - name: Health check
         run: |
-          # Wait up to 2 minutes for new containers to be healthy
-          for i in {1..24}; do
-            if curl -fsS https://windyselfhost.online/_health > /dev/null 2>&1; then
-              echo "✅ Outline healthy"
-              break
-            fi
-            echo "Waiting for Outline... ($i/24)"
-            sleep 5
-          done
-          curl -fsS https://api.windyselfhost.online/health || (echo "❌ FastAPI not healthy" && exit 1)
-          echo "✅ FastAPI healthy"
+          # Wait up to 3 minutes for each service (Outline + FastAPI) to be healthy.
+          # FastAPI startup is slower (Python + LightRAG init + Neo4j) so a single curl
+          # right after Outline becomes healthy will often hit 502; retry independently.
+          check() {
+            local url="$1"
+            local name="$2"
+            for i in {1..36}; do
+              if curl -fsS -o /dev/null -w "%{http_code}" "$url" 2>/dev/null | grep -q "^2"; then
+                echo "✅ $name healthy"
+                return 0
+              fi
+              echo "Waiting for $name... ($i/36)"
+              sleep 5
+            done
+            echo "❌ $name not healthy after 3 minutes"
+            return 1
+          }
+
+          check "https://windyselfhost.online/_health" "Outline" || exit 1
+          check "https://api.windyselfhost.online/health" "FastAPI" || exit 1
 
       - name: Notify Healthchecks.io (deploy success)
         if: success() && env.DEPLOY_HC_PING_URL != ''
