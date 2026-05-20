@@ -274,6 +274,10 @@ jobs:
           docker compose -f docker-compose.prod.yml pull outline fastapi caddy postgres redis neo4j
           # Up with the new images, recreate only what changed
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          # Caddyfile is bind-mounted; content changes don't trigger compose recreate.
+          # Reload Caddy explicitly so any Caddyfile updates take effect.
+          docker exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile || \
+            docker compose -f docker-compose.prod.yml restart caddy
           # Prune dangling images to free disk
           docker image prune -f
           REMOTE
