@@ -3,6 +3,7 @@ import { addMonths } from "date-fns";
 import Koa from "koa";
 import bodyParser from "koa-body";
 import Router from "koa-router";
+import env from "@server/env";
 import { AuthenticationError } from "@server/errors";
 import authMiddleware from "@server/middlewares/authentication";
 import coalesceBody from "@server/middlewares/coaleseBody";
@@ -10,6 +11,7 @@ import { Collection, Team, View } from "@server/models";
 import AuthenticationHelper from "@server/models/helpers/AuthenticationHelper";
 import type { AppState, AppContext, APIContext } from "@server/types";
 import { verifyCSRFToken } from "@server/middlewares/csrf";
+import { getCookieDomain } from "@shared/utils/domains";
 
 const app = new Koa<AppState, AppContext>();
 const router = new Router();
@@ -44,6 +46,9 @@ router.get("/redirect", authMiddleware(), async (ctx: APIContext) => {
   ctx.cookies.set("accessToken", jwtToken, {
     sameSite: "lax",
     expires: addMonths(new Date(), 3),
+    // Share across subdomains in multi-workspace (SUBDOMAINS_ENABLED) mode so
+    // WebSocket connections to the root collaboration server include the cookie.
+    domain: getCookieDomain(ctx.hostname, env.isCloudHosted),
   });
   const [team, collection, view] = await Promise.all([
     Team.findByPk(user.teamId),
