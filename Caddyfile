@@ -36,6 +36,11 @@ http://api.windyselfhost.online {
 }
 
 # ───── Outline: root + ALL workspace subdomains ─────
+# Note: Caddy v2's reverse_proxy automatically handles WebSocket upgrades.
+# Do NOT manually set `header_up Connection` or `header_up Upgrade` — Caddy
+# treats them as hop-by-hop headers and explicit forwarding prevents Caddy
+# from switching into WS tunneling mode (request gets handled as plain HTTP,
+# upstream returns 400 Bad Request).
 http://windyselfhost.online, http://*.windyselfhost.online {
 	encode zstd gzip
 
@@ -52,9 +57,6 @@ http://windyselfhost.online, http://*.windyselfhost.online {
 		header_up X-Forwarded-For {remote_host}
 		# Tell Outline that the original request was HTTPS (terminated by Cloudflare)
 		header_up X-Forwarded-Proto https
-		# WebSocket support for Hocuspocus collaboration
-		header_up Connection {>Connection}
-		header_up Upgrade {>Upgrade}
 	}
 
 	log {
