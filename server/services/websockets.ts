@@ -73,7 +73,7 @@ export default function init(
         // In cloud-hosted we support any origin for custom domains.
         if (
           !env.isCloudHosted &&
-          (!req.headers.origin || !env.URL.startsWith(req.headers.origin))
+          (!req.headers.origin || !req.headers.origin.endsWith(new URL(env.URL).host))
         ) {
           Logger.warn(
             `[WS-trace] /realtime rejected — origin mismatch: ${req.headers.origin} vs ${env.URL}`
