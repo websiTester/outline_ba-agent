@@ -103,3 +103,15 @@ allow(User, "resendInvite", User, (actor, user) =>
     !!user?.isInvited
   )
 );
+
+// BA Kit (M2) — workspace admin can grant/revoke the instance super-admin flag
+// on any workspace-admin target, including themselves. Target must currently
+// hold the workspace Admin role and be active.
+allow(User, "updateInstanceAdmin", User, (actor, user) =>
+  and(
+    //
+    isTeamAdmin(actor, user),
+    !!user?.isAdmin,
+    !user?.isSuspended
+  )
+);

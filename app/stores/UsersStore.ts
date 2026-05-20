@@ -91,6 +91,21 @@ export default class UsersStore extends Store<User> {
     await this.actionOnUser("activate", user);
   };
 
+  // BA Kit (M2) — toggle the instance super-admin flag on a target user.
+  // Body carries the desired value so the same route handles promote + revoke.
+  @action
+  updateInstanceAdmin = async (user: User, isInstanceAdmin: boolean) => {
+    const res = await client.post(`/users.update_instance_admin`, {
+      id: user.id,
+      isInstanceAdmin,
+    });
+    invariant(res?.data, "Data should be available");
+    runInAction(`UsersStore#updateInstanceAdmin`, () => {
+      this.addPolicies(res.policies);
+      this.add(res.data);
+    });
+  };
+
   @action
   invite = async (
     invites: {

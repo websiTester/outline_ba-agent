@@ -22,6 +22,9 @@ type UserPresentation = {
   color: string;
   role: UserRole;
   isSuspended: boolean;
+  // BA Kit (M2) — needed so the FE can gate the "BA Kit Admin" Settings menu
+  // item without an extra round-trip. Exposed for self only (auth.info).
+  isInstanceAdmin: boolean;
   email?: string | null;
   language?: string;
   preferences?: UserPreferences | null;
@@ -40,6 +43,7 @@ export default function presentUser(
     color: user.color,
     role: user.role,
     isSuspended: user.isSuspended,
+    isInstanceAdmin: user.isInstanceAdmin === true, // BA Kit M2 — Q11/Q48
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     deletedAt: user.deletedAt,

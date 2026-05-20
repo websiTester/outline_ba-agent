@@ -32,6 +32,8 @@ import useStores from "./useStores";
 
 const ApiKeys = lazy(() => import("~/scenes/Settings/ApiKeys"));
 const Applications = lazy(() => import("~/scenes/Settings/Applications"));
+// BA Kit (M2) admin scene — gated by user.isInstanceAdmin (spec Q26/Q48).
+const BAKitAdmin = lazy(() => import("~/scenes/Settings/BAKitAdmin"));
 const APIAndAccess = lazy(() => import("~/scenes/Settings/APIAndAccess"));
 const Authentication = lazy(() => import("~/scenes/Settings/Authentication"));
 const Details = lazy(() => import("~/scenes/Settings/Details"));
@@ -255,6 +257,17 @@ const useSettingsConfig = () => {
         enabled: can.update,
         group: t("Integrations"),
         icon: PlusIcon,
+      },
+      // BA Kit Admin (M2) — instance-admin only, shown under its own group so
+      // it doesn't get lost in the Workspace section.
+      {
+        name: "BA Kit Admin",
+        path: settingsPath("ba-kit-admin"),
+        component: BAKitAdmin.Component,
+        preload: BAKitAdmin.preload,
+        enabled: user.isInstanceAdmin === true,
+        group: "BA Kit",
+        icon: SparklesIcon,
       },
     ];
 

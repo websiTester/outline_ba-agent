@@ -17,6 +17,8 @@ import apiKeys from "./apiKeys";
 import attachments from "./attachments";
 import auth from "./auth";
 import authenticationProviders from "./authenticationProviders";
+// BA Kit (M2) — proxies user-facing routes to FastAPI + internal append endpoint.
+import baKit from "./ba-kit";
 import chat from "./chat";
 import collections from "./collections";
 import comments from "./comments/comments";
@@ -118,6 +120,7 @@ router.use("/", groupMemberships.routes());
 router.use("/", fileOperationsRoute.routes());
 router.use("/", graph.routes());
 router.use("/", chat.routes());
+router.use("/", baKit.routes());
 router.use("/", urls.routes());
 router.use("/", userMemberships.routes());
 router.use("/", reactions.routes());

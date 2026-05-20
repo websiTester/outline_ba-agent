@@ -26,6 +26,9 @@ from routers import gemini_keys_router, tools_management_router
 from routers.chat import router as chat_router
 from routers.documents import router as document_router
 from routers.graph import router as graph_router
+# BA Kit (M2) — seed templates on first boot + recover crash-orphaned jobs.
+from services.recovery import recover_orphaned_jobs
+from services.template_seed import seed_templates_if_empty
 from utils.file_parser import SUPPORTED_EXTENSIONS, parse_file_to_text
 
 # Windows asyncio event loop policy (required for asyncpg + Neo4j on Windows)
@@ -84,12 +87,66 @@ async def lifespan(_app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         logger.info("✅ Database tables verified")
 
+        # 1b. BA Kit job-status split (lifecycle vs progress).
+        # `create_all` only creates new tables; existing rows still use the
+        # legacy single `status` column. Add the new columns idempotently,
+        # backfill from `status`, then drop the legacy column so the model
+        # is the only source of truth. All steps are wrapped in IF EXISTS /
+        # IF NOT EXISTS guards so re-running startup is safe.
+        await conn.execute(sqlalchemy.text("""
+            ALTER TABLE ba_kit_generation_jobs
+              ADD COLUMN IF NOT EXISTS lifecycle VARCHAR NOT NULL DEFAULT 'active';
+        """))
+        await conn.execute(sqlalchemy.text("""
+            ALTER TABLE ba_kit_generation_jobs
+              ADD COLUMN IF NOT EXISTS progress VARCHAR NOT NULL DEFAULT 'pending';
+        """))
+        await conn.execute(sqlalchemy.text("""
+            DO $$
+            BEGIN
+              IF EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'ba_kit_generation_jobs'
+                  AND column_name = 'status'
+              ) THEN
+                UPDATE ba_kit_generation_jobs
+                   SET lifecycle = CASE WHEN status = 'cancelled' THEN 'cancelled'
+                                        ELSE 'active' END,
+                       progress  = CASE WHEN status = 'cancelled' THEN 'pending'
+                                        ELSE status END
+                 WHERE lifecycle = 'active' AND progress = 'pending';
+                ALTER TABLE ba_kit_generation_jobs DROP COLUMN status;
+              END IF;
+            END$$;
+        """))
+        await conn.execute(sqlalchemy.text("""
+            CREATE INDEX IF NOT EXISTS ix_ba_kit_generation_jobs_lifecycle
+              ON ba_kit_generation_jobs (lifecycle);
+        """))
+        await conn.execute(sqlalchemy.text("""
+            CREATE INDEX IF NOT EXISTS ix_ba_kit_generation_jobs_progress
+              ON ba_kit_generation_jobs (progress);
+        """))
+        logger.info("✅ BA Kit job status split (lifecycle/progress) verified")
+
     # 2. Neo4j workspace indexes (idempotent)
     await setup_neo4j_workspace_indexes()
 
     # 3. Background task: monitor stuck workspace locks
     asyncio.create_task(monitor_stuck_locks())
     logger.info("✅ Workspace lock monitor started")
+
+    # 4. BA Kit — seed 8 default templates if DB empty (Q17, idempotent)
+    try:
+        await seed_templates_if_empty()
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("BA Kit template seed failed (non-fatal): %s", exc)
+
+    # 5. BA Kit — recover any job/section rows orphaned by previous crash (Q35)
+    try:
+        await recover_orphaned_jobs()
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("BA Kit recovery failed (non-fatal): %s", exc)
 
     logger.info("✅ Startup complete")
     yield
@@ -124,6 +181,12 @@ app.include_router(gemini_keys_router)
 app.include_router(document_router)
 app.include_router(graph_router)
 app.include_router(chat_router)
+
+# BA Kit (M2) routers — admin CRUD, public template list, user-facing jobs.
+from routers.ba_kit import admin_router, generation_router, public_router  # noqa: E402
+app.include_router(admin_router)
+app.include_router(public_router)
+app.include_router(generation_router)
 
 
 @app.get("/health")

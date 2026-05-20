@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 import { SearchIcon, HomeIcon, SidebarIcon, SparklesIcon } from "outline-icons";
-import { MessageSquare, Waypoints } from "lucide-react";
+import { MessageSquare, Waypoints, FileText } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -121,6 +121,15 @@ function AppSidebar() {
                 label="Generate Documents"
                 exact={false}
               />
+              {!user.isViewer && (
+                /* BA Kit (M2) — only non-viewer workspace members can launch jobs (Q14). */
+                <SidebarLink
+                  to="/ba-kit"
+                  icon={<FileText size={20} />}
+                  label="BA Kit"
+                  exact={false}
+                />
+              )}
               <SidebarLink
                 to="/chat"
                 icon={<MessageSquare size={20} />}

@@ -173,6 +173,17 @@ export const UsersSuspendSchema = BaseSchema.extend({
 
 export type UsersSuspendReq = z.infer<typeof UsersSuspendSchema>;
 
+// BA Kit (M2) — toggle instance-wide admin flag from Members settings.
+export const UsersUpdateInstanceAdminSchema = BaseSchema.extend({
+  body: BaseIdSchema.extend({
+    isInstanceAdmin: z.boolean(),
+  }),
+});
+
+export type UsersUpdateInstanceAdminReq = z.infer<
+  typeof UsersUpdateInstanceAdminSchema
+>;
+
 export const UsersResendInviteSchema = BaseSchema.extend({
   body: BaseIdSchema,
 });

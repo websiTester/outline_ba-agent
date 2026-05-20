@@ -28,3 +28,10 @@ networkx>=3.0
 json-repair>=0.30.0
 openai>=1.0.0
 tenacity>=8.0.0
+
+# ─────────────────────────────────────────────────────────────
+# BA Kit (M2) — document generation engine
+# Reserved for future Postgres checkpointer; engine is DB-driven for MVP
+# so we don't strictly need this yet, but pinning makes adoption easier.
+# ─────────────────────────────────────────────────────────────
+# langgraph-checkpoint-postgres>=2.0.0

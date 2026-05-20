@@ -529,6 +529,57 @@ router.post(
   }
 );
 
+// BA Kit (M2) — toggle the instance super-admin flag on a workspace-admin user.
+// Audited via `updateWithCtx` (name: "update_instance_admin") so the event log
+// answers "who promoted whom and when".
+router.post(
+  "users.update_instance_admin",
+  auth({ role: UserRole.Admin }),
+  validate(T.UsersUpdateInstanceAdminSchema),
+  transaction(),
+  async (ctx: APIContext<T.UsersUpdateInstanceAdminReq>) => {
+    const { transaction } = ctx.state;
+    const { id: userId, isInstanceAdmin } = ctx.input.body;
+    const actor = ctx.state.auth.user;
+
+    // step 1: lock the row to avoid concurrent toggle races
+    const user = await User.findByPk(userId, {
+      rejectOnEmpty: true,
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
+    // step 2: policy gate — actor must be workspace admin in the same team,
+    // target must be a workspace admin and not suspended (see policies/user.ts)
+    authorize(actor, "updateInstanceAdmin", user);
+
+    // step 3: skip no-op writes so the audit log only records real changes
+    if (user.isInstanceAdmin === isInstanceAdmin) {
+      ctx.body = {
+        data: presentUser(user, {
+          includeDetails: !!can(actor, "readDetails", user),
+        }),
+        policies: presentPolicies(actor, [user]),
+      };
+      return;
+    }
+
+    // step 4: update with ctx to emit an Event entry (Q9 audit log)
+    await user.updateWithCtx(
+      ctx,
+      { isInstanceAdmin },
+      { name: "update_instance_admin" }
+    );
+
+    ctx.body = {
+      data: presentUser(user, {
+        includeDetails: !!can(actor, "readDetails", user),
+      }),
+      policies: presentPolicies(actor, [user]),
+    };
+  }
+);
+
 router.post(
   "users.invite",
   rateLimiter(RateLimiterStrategy.FiftyPerHour),

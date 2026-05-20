@@ -38,6 +38,8 @@ const Changesets = lazy(() => import("~/scenes/Developer/Changesets"));
 const LightRagGraph = lazy(() => import("~/scenes/LightRagGraph"));
 const BaAgent = lazy(() => import("~/scenes/BaAgent"));
 const Chat = lazy(() => import("~/scenes/Chat"));
+// BA Kit (M2) — new global document-generation scene (built alongside BaAgent, Q22).
+const BAKit = lazy(() => import("~/scenes/BAKit"));
 
 const RedirectDocument = ({
   match,
@@ -119,6 +121,8 @@ function AuthenticatedRoutes() {
             <Route path={`/doc/${documentSlug}`} component={Document} />
             <Route exact path="/graph" component={LightRagGraph} />
             <Route exact path="/ba-agent" component={BaAgent} />
+            {/* BA Kit landing + job detail handled by the BAKit scene's own router (P5.2). */}
+            <Route path="/ba-kit" component={BAKit} />
             <Route exact path="/chat" component={Chat} />
             <Route exact path={`${searchPath()}/:query?`} component={Search} />
             {env.isDevelopment && (

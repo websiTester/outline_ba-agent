@@ -197,6 +197,16 @@ class User extends ParanoidModel<
   @Column(DataType.JSONB)
   preferences: UserPreferences | null;
 
+  /**
+   * BA Kit (M2) — instance-level super admin flag. Toggled by workspace admins
+   * from the Members settings page (route: `users.update_instance_admin`) or
+   * by ops via `python -m cli.promote_admin <email>`. Gates the BA Kit Admin
+   * Settings page and the FastAPI `/ba-kit/admin/*` routes.
+   */
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  isInstanceAdmin: boolean;
+
   @Column(DataType.JSONB)
   notificationSettings: NotificationSettings;
 

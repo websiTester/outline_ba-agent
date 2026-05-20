@@ -63,6 +63,12 @@ class User extends ParanoidModel implements Searchable {
   @observable
   isSuspended: boolean;
 
+  // BA Kit (M2) — instance-level super admin flag. Toggled by workspace
+  // admins from the Members settings page or by ops via the CLI. Gates the
+  // "BA Kit Admin" Settings menu item and the /settings/ba-kit-admin route.
+  @observable
+  isInstanceAdmin: boolean;
+
   @computed
   get searchContent(): string[] {
     return [this.name, this.email, this.initials].filter(Boolean);

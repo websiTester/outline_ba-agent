@@ -280,6 +280,10 @@ export class Environment {
     environment.NEXT_PUBLIC_BASE_URL ?? "http://localhost:8000"
   ).replace(/\/$/, "");
 
+  // (No internal secret needed — FastAPI no longer calls Outline back.
+  // Section sync to the Outline document is driven from the FE via the
+  // standard `documents.update` API with the user's own session.)
+
   /**
    * The maximum number of network clients that can be connected to a single
    * document at once. Defaults to 100.

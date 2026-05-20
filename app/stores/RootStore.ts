@@ -4,6 +4,8 @@ import pluralize from "pluralize";
 import ApiKeysStore from "./ApiKeysStore";
 import AuthStore from "./AuthStore";
 import AuthenticationProvidersStore from "./AuthenticationProvidersStore";
+// BA Kit (M2) — aggregate store for templates + jobs (not a single-model store).
+import BAKitStore from "./BAKitStore";
 import CollectionsStore from "./CollectionsStore";
 import CommentsStore from "./CommentsStore";
 import DialogsStore from "./DialogsStore";
@@ -42,6 +44,7 @@ export default class RootStore {
   apiKeys: ApiKeysStore;
   auth: AuthStore;
   authenticationProviders: AuthenticationProvidersStore;
+  baKit: BAKitStore;
   collections: CollectionsStore;
   groupMemberships: GroupMembershipsStore;
   comments: CommentsStore;
@@ -113,6 +116,8 @@ export default class RootStore {
     this.registerStore(DocumentPresenceStore, "presence");
     this.registerStore(DialogsStore, "dialogs");
     this.registerStore(UiStore, "ui");
+    // BA Kit aggregate store — gives `useStores().baKit` access throughout app.
+    this.registerStore(BAKitStore, "baKit");
 
     // AuthStore must be initialized last as it makes use of the other stores.
     this.registerStore(AuthStore, "auth");
