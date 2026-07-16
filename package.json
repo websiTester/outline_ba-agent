@@ -277,7 +277,7 @@
     "y-protocols": "^1.0.6",
     "yauzl": "^3.2.0",
     "yjs": "^13.6.1",
-    "zod": "^4.2.1"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.3",
@@ -393,7 +393,7 @@
     "qs": "6.14.1",
     "prismjs": "1.30.0",
     "cheerio": "1.0.0-rc.12",
-    "zod": "^4.2.1"
+    "zod": "^4.4.3"
   },
   "version": "1.6.1",
   "packageManager": "yarn@4.11.0"
